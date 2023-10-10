@@ -1,8 +1,9 @@
+import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import { Inject, Injectable } from '@nestjs/common';
 
 import jwtConfig from './jwt.config';
-import { JwtService } from '@nestjs/jwt';
+import { TokenPayload } from '../interfaces/token-payload.interface';
 
 @Injectable()
 export class TokenService {
@@ -11,11 +12,30 @@ export class TokenService {
 
   constructor(private readonly jwtService: JwtService) {}
 
-  createToken() {}
+  async createToken(payload: TokenPayload, userSecret: string): Promise<string> {
+    const { audience, issuer, secret, accessTokenTtl } = this.jwtConfiguration;
+    const tokenOptions = {
+      audience: audience,
+      issuer: issuer,
+      secret: secret + userSecret,
+      expiresIn: accessTokenTtl,
+    };
 
-  verifyToken() {}
+    const token = await this.jwtService.signAsync(payload, tokenOptions);
 
-  isTokenExpired() {}
+    return token;
+  }
 
-  extractTokenFromRequest() {}
+  async verifyToken(token: string, userSecret: string): Promise<void> {
+    try {
+      const { audience, issuer, secret } = this.jwtConfiguration;
+      await this.jwtService.verifyAsync(token, {
+        secret: secret + userSecret,
+        audience: audience,
+        issuer: issuer,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
