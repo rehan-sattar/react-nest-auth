@@ -38,4 +38,10 @@ export class TokenService {
       throw error;
     }
   }
+
+  extractTokenPayload(token: string): TokenPayload {
+    const payload = this.jwtService.decode(token) as TokenPayload;
+
+    return payload;
+  }
 }
