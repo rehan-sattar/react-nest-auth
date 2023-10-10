@@ -7,6 +7,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { HashingService } from './hashing/hashing.service';
 import { UserAlreadyExists } from './exceptions/user-already-exists.exception';
+import { InvalidEmailOrPasswordException } from './exceptions/invalid-email-or-password.exception';
 
 @Injectable()
 export class AuthenticationService {
@@ -34,6 +35,14 @@ export class AuthenticationService {
   }
 
   async signIn(signInDto: SignInDto) {
-    console.log(signInDto);
+    const { email, password } = signInDto;
+
+    const user = await this.userModel.findOne({ email });
+    if (!user) throw new InvalidEmailOrPasswordException();
+
+    const isEqual = await this.hashingService.compare(password, user.password);
+    if (!isEqual) throw new InvalidEmailOrPasswordException();
+
+    return true;
   }
 }
