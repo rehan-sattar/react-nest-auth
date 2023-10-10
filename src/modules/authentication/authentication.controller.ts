@@ -1,5 +1,8 @@
-import { Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post } from '@nestjs/common';
+
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
 import { AuthenticationService } from './authentication.service';
 
 @Controller('authentication')
@@ -8,12 +11,12 @@ export class AuthenticationController {
   constructor(private readonly authService: AuthenticationService) {}
 
   @Post('/sign-up')
-  async signUp() {
-    return this.authService.signUp();
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto);
   }
 
   @Post('/sign-in')
-  async signIn() {
-    return this.authService.signIn();
+  async signIn(@Body() signInDto: SignInDto) {
+    return this.authService.signIn(signInDto);
   }
 }
