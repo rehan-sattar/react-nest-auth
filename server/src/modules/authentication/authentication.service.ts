@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { User } from '../users/users.schema';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -15,6 +15,8 @@ import { InvalidEmailOrPasswordException } from './exceptions/invalid-email-or-p
 
 @Injectable()
 export class AuthenticationService {
+  private readonly logger = new Logger(AuthenticationService.name);
+
   @InjectModel(User.name) private userModel: Model<User>;
 
   constructor(
@@ -23,10 +25,12 @@ export class AuthenticationService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<TokenResponses> {
+    this.logger.log('Signup process started.');
     const { name, email, password } = signUpDto;
 
     const userExists = await this.userModel.findOne({ email });
     if (userExists) {
+      this.logger.error('User already exists.');
       throw new UserAlreadyExists();
     }
 
@@ -42,36 +46,63 @@ export class AuthenticationService {
 
     await user.save();
 
+    this.logger.log(`User successfully created with id: ${user.id}.`);
+
     return this.generateTokensForUser(user.id, user.email, user.secret);
   }
 
   async signIn(signInDto: SignInDto): Promise<TokenResponses> {
+    this.logger.log('Sign In process started.');
+
     const { email, password } = signInDto;
 
     const user = await this.userModel.findOne({ email });
-    if (!user) throw new InvalidEmailOrPasswordException();
+    if (!user) {
+      this.logger.error('Email verification - Failed.');
+
+      throw new InvalidEmailOrPasswordException();
+    }
 
     const isEqual = await this.hashingService.compare(password, user.password);
-    if (!isEqual) throw new InvalidEmailOrPasswordException();
+    if (!isEqual) {
+      this.logger.error('Password verification - Failed.');
+
+      throw new InvalidEmailOrPasswordException();
+    }
+
+    this.logger.log(`User successfully sign in with id: ${user.id}.`);
 
     return this.generateTokensForUser(user.id, user.email, user.secret);
   }
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<TokenResponses> {
+    this.logger.log('Refresh Token process started.');
     const { refreshToken } = refreshTokenDto;
     const { sub } = this.tokenService.extractTokenPayload(refreshToken);
 
     const user = await this.userModel.findById(sub);
 
     if (!user) {
+      this.logger.error('User verification - Failed.');
+
       throw new BadRequestException();
     }
 
     const isValid = await this.tokenService.isRefreshTokenValid(refreshToken, user.id, user.secret);
 
-    if (!isValid) throw new BadRequestException();
+    if (!isValid) {
+      this.logger.error('Existing Refresh Token verification - Failed.');
+
+      throw new BadRequestException();
+    }
+
+    this.logger.log(`Tokens successfully created.`);
 
     return this.generateTokensForUser(user.id, user.email, user.secret);
+  }
+
+  me(activeUserId: string) {
+    return this.userModel.findById(activeUserId);
   }
 
   private async generateTokensForUser(userId: string, email: string, secret: string): Promise<TokenResponses> {

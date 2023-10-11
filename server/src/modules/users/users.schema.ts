@@ -1,5 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { ExcludeProperty } from 'nestjs-mongoose-exclude';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -12,9 +13,11 @@ export class User {
   email: string;
 
   @Prop()
+  @ExcludeProperty()
   password: string;
 
   @Prop()
+  @ExcludeProperty()
   secret: string;
 
   @Prop()

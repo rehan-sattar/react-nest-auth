@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import jwtConfig from './jwt.config';
 import { TokenPayload } from '../interfaces/token-payload.interface';
@@ -10,6 +10,8 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class TokenService {
+  private readonly logger = new Logger(TokenService.name);
+
   @Inject(jwtConfig.KEY)
   private readonly jwtConfiguration: ConfigType<typeof jwtConfig>;
 
@@ -65,6 +67,7 @@ export class TokenService {
         issuer: issuer,
       });
     } catch (error) {
+      this.logger.error(error, 'Token verification - Failed');
       throw error;
     }
   }
