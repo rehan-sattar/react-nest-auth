@@ -9,12 +9,16 @@ import { User, UserSchema } from '../users/users.schema';
 import { HashingService } from './hashing/hashing.service';
 import { AuthenticationService } from './authentication.service';
 import { AuthenticationController } from './authentication.controller';
+import { RefreshToken, RefreshTokenSchema } from './token/refresh-token.schema';
 
 @Module({
   imports: [
     ConfigModule.forFeature(jwtConfig),
     JwtModule.registerAsync(jwtConfig.asProvider()),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: RefreshToken.name, schema: RefreshTokenSchema },
+    ]),
   ],
   controllers: [AuthenticationController],
   providers: [HashingService, AuthenticationService, JwtService, TokenService],

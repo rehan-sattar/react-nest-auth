@@ -5,8 +5,10 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards } from '@n
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthGuard } from './guards/auth.guard';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthenticationService } from './authentication.service';
-import { ACCESS_TOKEN_COOKIE_KEY } from './authentication.constants';
+import { TokenResponses } from './interfaces/token-response.interface';
+import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from './authentication.constants';
 
 @Controller('authentication')
 @ApiTags('Authentication')
@@ -17,18 +19,27 @@ export class AuthenticationController {
   @Post('/sign-up')
   @HttpCode(HttpStatus.OK)
   async signUp(@Res({ passthrough: true }) response: Response, @Body() signUpDto: SignUpDto) {
-    const accessToken = await this.authService.signUp(signUpDto);
+    const { accessToken, refreshToken } = await this.authService.signUp(signUpDto);
 
-    return this.setTokenInResponseCookies(response, accessToken);
+    return this.setTokenInResponseCookies(response, { accessToken, refreshToken });
   }
 
   @ApiOkResponse()
   @Post('/sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(@Res({ passthrough: true }) response: Response, @Body() signInDto: SignInDto) {
-    const accessToken = await this.authService.signIn(signInDto);
+    const tokens = await this.authService.signIn(signInDto);
 
-    return this.setTokenInResponseCookies(response, accessToken);
+    return this.setTokenInResponseCookies(response, tokens);
+  }
+
+  @ApiOkResponse()
+  @Post('/refresh-tokens')
+  @HttpCode(HttpStatus.OK)
+  async refreshTokens(@Res({ passthrough: true }) response: Response, @Body() refreshTokenDto: RefreshTokenDto) {
+    const tokens = await this.authService.refreshTokens(refreshTokenDto);
+
+    return this.setTokenInResponseCookies(response, tokens);
   }
 
   @Post('/me')
@@ -37,13 +48,15 @@ export class AuthenticationController {
     return 'This is me!';
   }
 
-  private setTokenInResponseCookies(response: Response, accessToken: string) {
+  private setTokenInResponseCookies(response: Response, { accessToken, refreshToken }: TokenResponses) {
+    const cookieOptions = {
+      secure: false,
+      httpOnly: true,
+      sameSite: true,
+    };
     response
-      .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken, {
-        secure: false,
-        httpOnly: true,
-        sameSite: true,
-      })
+      .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken, cookieOptions)
+      .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, cookieOptions)
       .send();
   }
 }

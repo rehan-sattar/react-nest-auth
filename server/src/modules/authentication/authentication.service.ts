@@ -1,13 +1,15 @@
 import * as crypto from 'crypto';
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { User } from '../users/users.schema';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { TokenService } from './token/token.service';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { HashingService } from './hashing/hashing.service';
+import { TokenResponses } from './interfaces/token-response.interface';
 import { UserAlreadyExists } from './exceptions/user-already-exists.exception';
 import { InvalidEmailOrPasswordException } from './exceptions/invalid-email-or-password.exception';
 
@@ -20,7 +22,7 @@ export class AuthenticationService {
     private readonly hashingService: HashingService,
   ) {}
 
-  async signUp(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto): Promise<TokenResponses> {
     const { name, email, password } = signUpDto;
 
     const userExists = await this.userModel.findOne({ email });
@@ -40,15 +42,10 @@ export class AuthenticationService {
 
     await user.save();
 
-    const tokenPayload = { sub: user.id, email: user.email };
-    const accessToken = await this.tokenService.createToken(tokenPayload, secret);
-
-    console.log('Access Token: ', accessToken);
-
-    return accessToken;
+    return this.generateTokensForUser(user.id, user.email, user.secret);
   }
 
-  async signIn(signInDto: SignInDto) {
+  async signIn(signInDto: SignInDto): Promise<TokenResponses> {
     const { email, password } = signInDto;
 
     const user = await this.userModel.findOne({ email });
@@ -57,10 +54,32 @@ export class AuthenticationService {
     const isEqual = await this.hashingService.compare(password, user.password);
     if (!isEqual) throw new InvalidEmailOrPasswordException();
 
-    const tokenPayload = { sub: user.id, email: user.email };
-    const accessToken = await this.tokenService.createToken(tokenPayload, user.secret);
+    return this.generateTokensForUser(user.id, user.email, user.secret);
+  }
 
-    return accessToken;
+  async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<TokenResponses> {
+    const { refreshToken } = refreshTokenDto;
+    const { sub } = this.tokenService.extractTokenPayload(refreshToken);
+
+    const user = await this.userModel.findById(sub);
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const isValid = await this.tokenService.isRefreshTokenValid(refreshToken, user.id, user.secret);
+
+    if (!isValid) throw new BadRequestException();
+
+    return this.generateTokensForUser(user.id, user.email, user.secret);
+  }
+
+  private async generateTokensForUser(userId: string, email: string, secret: string): Promise<TokenResponses> {
+    const tokenPayload = { sub: userId, email };
+    const accessToken = await this.tokenService.createToken(tokenPayload, secret, 'access');
+    const refreshToken = await this.tokenService.createToken(tokenPayload, secret, 'refresh');
+
+    return { accessToken, refreshToken };
   }
 
   private generateSecret() {

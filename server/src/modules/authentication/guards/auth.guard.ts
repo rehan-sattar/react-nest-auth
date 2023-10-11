@@ -3,8 +3,8 @@ import { Request } from 'express';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
+import { User } from '../../users/users.schema';
 import { TokenService } from '../token/token.service';
-import { User } from 'src/modules/users/users.schema';
 import { ACCESS_TOKEN_COOKIE_KEY } from '../authentication.constants';
 
 @Injectable()

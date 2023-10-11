@@ -7,6 +7,10 @@ import { HashingService } from '../hashing/hashing.service';
 import { User, UserSchema } from '../../users/users.schema';
 import { AuthenticationService } from '../authentication.service';
 import { AuthenticationController } from '../authentication.controller';
+import { TokenService } from '../token/token.service';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import jwtConfig from '../token/jwt.config';
 
 describe('AuthenticationController', () => {
   let userModel: Model<User>;
@@ -21,10 +25,13 @@ describe('AuthenticationController', () => {
     userModel = mongoConnection.model(User.name, UserSchema);
 
     const app: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forFeature(jwtConfig), JwtModule.registerAsync(jwtConfig.asProvider())],
       controllers: [AuthenticationController],
       providers: [
         AuthenticationService,
         HashingService,
+        TokenService,
+        JwtService,
         { provide: getModelToken(User.name), useValue: userModel },
       ],
     }).compile();
