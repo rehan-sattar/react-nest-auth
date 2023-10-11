@@ -45,7 +45,7 @@ export class AuthenticationController {
   @Post('/me')
   @UseGuards(AuthGuard)
   async me() {
-    return 'This is me!';
+    return;
   }
 
   private setTokenInResponseCookies(response: Response, { accessToken, refreshToken }: TokenResponses) {
