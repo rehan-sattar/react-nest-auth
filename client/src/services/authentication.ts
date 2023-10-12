@@ -47,7 +47,7 @@ class AuthenticationService {
 
   async me(): Promise<MeResponse> {
     try {
-      const response = await ApiClient.post<MeResponse>(`${this.authApiBasePath}/me`);
+      const response = await ApiClient.get<MeResponse>(`${this.authApiBasePath}/me`);
 
       return response.data;
     } catch (error) {

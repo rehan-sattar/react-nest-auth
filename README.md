@@ -30,7 +30,7 @@ Welcome to the React + NestJS Authentication project! This is a comprehensive ex
 
 - **Axios Interceptors**: Smoothly manages token refresh scenarios for a seamless user experience.
 
-- **Beautiful UI**: An aesthetically pleasing user interface to enhance the user experience.
+- **Beautiful UI**: An aesthetically pleasing user interface to enhance the user experience including dark mode support.
 
 ## 🏢 Server Setup
 
@@ -44,7 +44,7 @@ Welcome to the React + NestJS Authentication project! This is a comprehensive ex
 - Clone the repository from: https://github.com/rehan-sattar/react-nest-auth.git
 - Get into the folder via `cd react-nest-auth` and then into server folder by: `cd server`.
 - `npm install`
-- Create two environment variable files at the root of project, one for development and second one for testing named as `.env.dev` & `.env.test` respectively.
+- Create two environment variable files inside the `server` directory, one for development and second one for testing named as `.env.dev` & `.env.test` respectively.
 
 ```bash
 ## Sample environment variable file
