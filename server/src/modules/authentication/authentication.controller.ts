@@ -4,6 +4,7 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -79,7 +80,7 @@ export class AuthenticationController {
     return this.setTokenInResponseCookies(response, tokens);
   }
 
-  @Post('/me')
+  @Get('/me')
   @UseGuards(AuthGuard)
   @UseInterceptors(new SanitizeMongooseModelInterceptor())
   async me(@ActiveUser('id') activeUserId: string) {
