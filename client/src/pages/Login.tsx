@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
 
 import ErrorDialog from "../components/ErrorDialog";
@@ -10,7 +10,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -27,7 +27,8 @@ export default function SignIn() {
     setLoading(true);
     try {
       await authService.signIn({ email, password });
-      history.push("/home");
+
+      navigate("/home");
     } catch (err: any) {
       setErrorMessage(err.message[0]);
     } finally {

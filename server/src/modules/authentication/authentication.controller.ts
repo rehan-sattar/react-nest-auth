@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import * as crypto from 'crypto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 
@@ -10,7 +11,7 @@ import { ActiveUser } from './decorators/active-user.decorator';
 import { AuthenticationService } from './authentication.service';
 import { TokenResponses } from './interfaces/token-response.interface';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
-import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from './authentication.constants';
+import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY, SESSION_ID_COOKIE_KEY } from './authentication.constants';
 
 @Controller('authentication')
 @ApiTags('Authentication')
@@ -73,13 +74,18 @@ export class AuthenticationController {
   }
 
   private clearCookiesInResponse(response: Response) {
-    response.clearCookie(ACCESS_TOKEN_COOKIE_KEY).clearCookie(REFRESH_TOKEN_COOKIE_KEY).send();
+    response
+      .clearCookie(ACCESS_TOKEN_COOKIE_KEY)
+      .clearCookie(REFRESH_TOKEN_COOKIE_KEY)
+      .clearCookie(SESSION_ID_COOKIE_KEY)
+      .send();
   }
 
   private setTokenInResponseCookies(response: Response, { accessToken, refreshToken }: TokenResponses) {
     response
       .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken, this.httpOnlyCookieOptions)
       .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, this.httpOnlyCookieOptions)
+      .cookie(SESSION_ID_COOKIE_KEY, crypto.randomBytes(20).toString('hex'))
       .send();
   }
 }

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
 import { authService } from "../services/authentication";
 import ErrorDialog from "../components/ErrorDialog";
 
 export default function SignUp() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -18,7 +18,8 @@ export default function SignUp() {
     setLoading(true);
     try {
       await authService.signUp({ email, name, password });
-      history.push("/home");
+
+      navigate("home");
     } catch (err: any) {
       setErrorMessage(err.message[0]);
     } finally {

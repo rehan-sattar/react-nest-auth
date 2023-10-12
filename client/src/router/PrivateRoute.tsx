@@ -1,24 +1,14 @@
-import { Redirect, Route, RouteProps } from "react-router";
-import { useAuthSession } from "../hooks/useAuthSession";
+import { Navigate } from "react-router";
+import Cookies from "universal-cookie";
 
-interface PrivateRouteProps extends RouteProps {
-  component: React.FC<RouteProps>;
-  path: string;
-}
+const cookies = new Cookies();
 
-export default function PrivateRoute({ component: Component, path }: PrivateRouteProps) {
-  const { isAuthenticated } = useAuthSession();
+const isUserAuthenticated = () => {
+  const sessionId = cookies.get("session-id");
 
-  return (
-    <Route
-      path={path}
-      render={(props) =>
-        isAuthenticated ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to={{ pathname: "/login", state: { from: props.location } }} />
-        )
-      }
-    />
-  );
-}
+  return sessionId ? true : false;
+};
+
+export const PrivateRoute = ({ children }: any) => {
+  return isUserAuthenticated() ? <>{children}</> : <Navigate to="/login" />;
+};

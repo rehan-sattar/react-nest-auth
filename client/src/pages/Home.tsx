@@ -12,17 +12,17 @@ import {
   Th,
   Tr,
 } from "@chakra-ui/react";
-import { useHistory } from "react-router";
-import { Spinner } from "@chakra-ui/react";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { Box, Flex } from "@chakra-ui/layout";
+import { Spinner, Center } from "@chakra-ui/react";
 import { MeResponse, authService } from "../services/authentication";
 
 export default function Home() {
-  const [user, setUser] = useState<null | MeResponse>(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<null | MeResponse>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const history = useHistory();
 
   const getAuthenticatedUserDetails = async () => {
     try {
@@ -43,7 +43,7 @@ export default function Home() {
     try {
       setLogoutLoading(true);
       await authService.signOut();
-      history.replace("/login");
+      navigate("/login");
       setLogoutLoading(false);
     } catch (error) {
       console.log("Something went wrong while logging out.");
@@ -90,11 +90,13 @@ export default function Home() {
   }
 
   return (
-    <Box height="400px">
-      {homePageContent}
-      <Button my={10} onClick={logoutUser} isLoading={logoutLoading}>
-        Logout
-      </Button>
-    </Box>
+    <Center>
+      <Box height="400px" width="container.sm">
+        {homePageContent}
+        <Button my={10} onClick={logoutUser} isLoading={logoutLoading}>
+          Logout
+        </Button>
+      </Box>
+    </Center>
   );
 }
