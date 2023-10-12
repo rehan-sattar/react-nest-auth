@@ -16,13 +16,14 @@ export default function SignUp() {
   const signUpUser = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    try {
-      await authService.signUp({ email, name, password });
-      history.push("/home");
-    } catch (err) {
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   await authService.signUp({ email, name, password });
+    //   history.push("/home");
+    // } catch (err: any) {
+    //   setErrorMessage(err.message[0]);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,9 @@ export default function SignUp() {
     <Box marginTop="10">
       <Flex flexDirection="column" justify="center" alignItems="center">
         <Heading> Sign Up 🚀 </Heading>
+
+        {errorMessage && <ErrorDialog errorMessage={errorMessage} onClose={onCloseErrorDialog} />}
+
         <Box width={["full", 400]}>
           <form onSubmit={signUpUser}>
             <Box mt="5">
@@ -76,9 +80,8 @@ export default function SignUp() {
               <Input
                 name="password"
                 type="password"
-                placeholder="Password (must be 6 characters long)"
+                placeholder="Password (must be 8 characters long)"
                 variant="filled"
-                minLength={8}
                 required
                 value={password}
                 onChange={handlePasswordChange}
@@ -90,7 +93,7 @@ export default function SignUp() {
                 variant="solid"
                 colorScheme="cyan"
                 width="full"
-                disabled={loading}
+                isLoading={loading}
               >
                 Sign Up
               </Button>
@@ -106,7 +109,6 @@ export default function SignUp() {
           </RouterLink>
         </Box>
       </Flex>
-      {errorMessage && <ErrorDialog errorMessage={errorMessage} onClose={onCloseErrorDialog} />}
     </Box>
   );
 }

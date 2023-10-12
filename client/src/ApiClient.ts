@@ -9,7 +9,6 @@ ApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log(originalRequest);
     /**
      * ...
      * handle errors in the request responses

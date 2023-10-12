@@ -28,7 +28,8 @@ export default function SignIn() {
     try {
       await authService.signIn({ email, password });
       history.push("/home");
-    } catch (err) {
+    } catch (err: any) {
+      setErrorMessage(err.message[0]);
     } finally {
       setLoading(false);
     }
@@ -42,6 +43,9 @@ export default function SignIn() {
     <Box marginTop="10">
       <Flex flexDirection="column" justify="center" alignItems="center">
         <Heading> Login 🚀 </Heading>
+
+        {errorMessage && <ErrorDialog errorMessage={errorMessage} onClose={onCloseErrorDialog} />}
+
         <Box width={["full", 400]}>
           <form onSubmit={SignInUser}>
             <Box mt="5">
@@ -72,7 +76,7 @@ export default function SignIn() {
                 variant="solid"
                 colorScheme="cyan"
                 width="full"
-                disabled={loading}
+                isLoading={loading}
               >
                 Login
               </Button>
@@ -88,7 +92,6 @@ export default function SignIn() {
           </RouterLink>
         </Box>
       </Flex>
-      {errorMessage && <ErrorDialog errorMessage={errorMessage} onClose={onCloseErrorDialog} />}
     </Box>
   );
 }

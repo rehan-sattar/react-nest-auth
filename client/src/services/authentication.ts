@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import ApiClient from "../ApiClient";
 
 export interface SignUpRequestBody {
@@ -24,9 +25,7 @@ class AuthenticationService {
     try {
       await ApiClient.post(`${this.authApiBasePath}/sign-up`, signUpBody);
     } catch (error) {
-      console.log(error);
-
-      throw error;
+      throw (error as AxiosError).response?.data;
     }
   }
 
@@ -34,9 +33,7 @@ class AuthenticationService {
     try {
       await ApiClient.post(`${this.authApiBasePath}/sign-in`, signInBody);
     } catch (error) {
-      console.log(error);
-
-      throw error;
+      throw (error as AxiosError).response?.data;
     }
   }
 
@@ -46,9 +43,7 @@ class AuthenticationService {
 
       return response.data;
     } catch (error) {
-      console.log(error);
-
-      throw error;
+      throw (error as AxiosError).response?.data;
     }
   }
 
