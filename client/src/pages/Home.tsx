@@ -43,7 +43,7 @@ export default function Home() {
     try {
       setLogoutLoading(true);
       await authService.signOut();
-      history.push("/login");
+      history.replace("/login");
       setLogoutLoading(false);
     } catch (error) {
       console.log("Something went wrong while logging out.");
