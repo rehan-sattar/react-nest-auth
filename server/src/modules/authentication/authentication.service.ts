@@ -75,6 +75,10 @@ export class AuthenticationService {
     return this.generateTokensForUser(user.id, user.email, user.secret);
   }
 
+  async signOut(userId: string) {
+    await this.tokenService.invalidateRefreshToken(userId);
+  }
+
   async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<TokenResponses> {
     this.logger.log('Refresh Token process started.');
     const { refreshToken } = refreshTokenDto;

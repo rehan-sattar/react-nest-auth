@@ -9,12 +9,18 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUser } from './decorators/active-user.decorator';
 import { AuthenticationService } from './authentication.service';
 import { TokenResponses } from './interfaces/token-response.interface';
-import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from './authentication.constants';
 import { SanitizeMongooseModelInterceptor } from 'nestjs-mongoose-exclude';
+import { ACCESS_TOKEN_COOKIE_KEY, REFRESH_TOKEN_COOKIE_KEY } from './authentication.constants';
 
 @Controller('authentication')
 @ApiTags('Authentication')
 export class AuthenticationController {
+  private readonly httpOnlyCookieOptions = {
+    secure: true,
+    httpOnly: true,
+    sameSite: true,
+  };
+
   constructor(private readonly authService: AuthenticationService) {}
 
   @ApiOkResponse()
@@ -38,6 +44,18 @@ export class AuthenticationController {
   }
 
   @ApiOkResponse()
+  @Post('/sign-out')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(new SanitizeMongooseModelInterceptor())
+  async signOut(@Res({ passthrough: true }) response: Response, @ActiveUser('id') userId: string) {
+    if (userId) {
+      await this.authService.signOut(userId);
+    }
+    return this.clearCookiesInResponse(response);
+  }
+
+  @ApiOkResponse()
   @Post('/refresh-tokens')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(new SanitizeMongooseModelInterceptor())
@@ -54,15 +72,14 @@ export class AuthenticationController {
     return this.authService.me(activeUserId);
   }
 
+  private clearCookiesInResponse(response: Response) {
+    response.clearCookie(ACCESS_TOKEN_COOKIE_KEY).clearCookie(REFRESH_TOKEN_COOKIE_KEY).send();
+  }
+
   private setTokenInResponseCookies(response: Response, { accessToken, refreshToken }: TokenResponses) {
-    const cookieOptions = {
-      secure: false,
-      httpOnly: true,
-      sameSite: true,
-    };
     response
-      .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken, cookieOptions)
-      .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, cookieOptions)
+      .cookie(ACCESS_TOKEN_COOKIE_KEY, accessToken, this.httpOnlyCookieOptions)
+      .cookie(REFRESH_TOKEN_COOKIE_KEY, refreshToken, this.httpOnlyCookieOptions)
       .send();
   }
 }

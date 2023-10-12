@@ -44,6 +44,10 @@ export class TokenService {
     return token;
   }
 
+  async invalidateRefreshToken(userId: string): Promise<void> {
+    await this.refreshTokenModel.deleteMany({ userId });
+  }
+
   async isRefreshTokenValid(refreshToken: string, userId: string, userSecret: string): Promise<boolean> {
     const tokenExists = await this.refreshTokenModel.findOne({ refreshToken, userId });
 

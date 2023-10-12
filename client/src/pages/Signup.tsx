@@ -16,14 +16,14 @@ export default function SignUp() {
   const signUpUser = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    // try {
-    //   await authService.signUp({ email, name, password });
-    //   history.push("/home");
-    // } catch (err: any) {
-    //   setErrorMessage(err.message[0]);
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      await authService.signUp({ email, name, password });
+      history.push("/home");
+    } catch (err: any) {
+      setErrorMessage(err.message[0]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {

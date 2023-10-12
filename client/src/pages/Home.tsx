@@ -12,14 +12,17 @@ import {
   Th,
   Tr,
 } from "@chakra-ui/react";
-import { Box, Flex, Heading } from "@chakra-ui/layout";
-import { useEffect, useState } from "react";
-import { MeResponse, authService } from "../services/authentication";
+import { useHistory } from "react-router";
 import { Spinner } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { Box, Flex } from "@chakra-ui/layout";
+import { MeResponse, authService } from "../services/authentication";
 
 export default function Home() {
   const [user, setUser] = useState<null | MeResponse>(null);
   const [loading, setLoading] = useState(true);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const history = useHistory();
 
   const getAuthenticatedUserDetails = async () => {
     try {
@@ -36,7 +39,16 @@ export default function Home() {
     getAuthenticatedUserDetails();
   }, []);
 
-  const logoutUser = async () => {};
+  const logoutUser = async () => {
+    try {
+      setLogoutLoading(true);
+      await authService.signOut();
+      history.push("/login");
+      setLogoutLoading(false);
+    } catch (error) {
+      console.log("Something went wrong while logging out.");
+    }
+  };
 
   let homePageContent;
 
@@ -80,7 +92,7 @@ export default function Home() {
   return (
     <Box height="400px">
       {homePageContent}
-      <Button my={10} onClick={logoutUser}>
+      <Button my={10} onClick={logoutUser} isLoading={logoutLoading}>
         Logout
       </Button>
     </Box>

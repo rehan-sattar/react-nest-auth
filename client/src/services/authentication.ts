@@ -37,6 +37,14 @@ class AuthenticationService {
     }
   }
 
+  async signOut(): Promise<void> {
+    try {
+      await ApiClient.post(`${this.authApiBasePath}/sign-out`);
+    } catch (error) {
+      throw (error as AxiosError).response?.data;
+    }
+  }
+
   async me(): Promise<MeResponse> {
     try {
       const response = await ApiClient.post<MeResponse>(`${this.authApiBasePath}/me`);
