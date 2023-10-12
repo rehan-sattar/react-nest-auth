@@ -73,7 +73,7 @@ export default function SignUp() {
                 width="full"
                 disabled={loading}
               >
-                Signup
+                Sign Up
               </Button>
             </Box>
           </form>

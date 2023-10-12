@@ -4,7 +4,7 @@ import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
 
 import ErrorDialog from "../components/ErrorDialog";
 
-export default function Login() {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export default function Login() {
     setPassword(value);
   };
 
-  const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
+  const SignInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -42,7 +42,7 @@ export default function Login() {
       <Flex flexDirection="column" justify="center" alignItems="center">
         <Heading> Login 🚀 </Heading>
         <Box width={["full", 400]}>
-          <form onSubmit={loginUser}>
+          <form onSubmit={SignInUser}>
             <Box mt="5">
               <Input
                 name="email"
