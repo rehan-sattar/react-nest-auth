@@ -34,7 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     getAuthenticatedUserDetails();
-  });
+  }, []);
 
   const logoutUser = async () => {};
 
@@ -51,7 +51,7 @@ export default function Home() {
   if (user) {
     homePageContent = (
       <Flex direction="column" justify="center" align="center">
-        <Alert status="success" mt="b">
+        <Alert status="success" mt="b" rounded="base">
           <AlertIcon />
           <Text my="5" fontWeight="extrabold">
             Hoorayy! 🥳 You are authenticated to use the system!
