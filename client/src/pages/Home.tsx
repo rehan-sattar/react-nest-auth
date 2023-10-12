@@ -11,6 +11,7 @@ import {
   Text,
   Th,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
@@ -24,15 +25,35 @@ export default function Home() {
   const [user, setUser] = useState<null | MeResponse>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  const toast = useToast();
+
   const getAuthenticatedUserDetails = async () => {
     try {
       const authenticatedUser = await authService.me();
       setUser(authenticatedUser);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (
+        error.statusCode === 403 ||
+        (error.statusCode === 400 && error.path === "/authentication/refresh-tokens")
+      ) {
+        handleUnAuthorizedException();
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUnAuthorizedException = () => {
+    toast({
+      title: "You are logged out.",
+      description: "Please login again to use the application.",
+      status: "warning",
+      position: "top-right",
+      duration: 9000,
+      isClosable: true,
+    });
+
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -45,8 +66,10 @@ export default function Home() {
       await authService.signOut();
       navigate("/login");
       setLogoutLoading(false);
-    } catch (error) {
-      console.log("Something went wrong while logging out.");
+    } catch (error: any) {
+      if (error.statusCode === 403) {
+        handleUnAuthorizedException();
+      }
     }
   };
 

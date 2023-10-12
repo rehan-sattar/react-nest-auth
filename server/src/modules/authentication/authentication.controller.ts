@@ -1,12 +1,22 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import * as crypto from 'crypto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { AuthGuard } from './guards/auth.guard';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ActiveUser } from './decorators/active-user.decorator';
 import { AuthenticationService } from './authentication.service';
 import { TokenResponses } from './interfaces/token-response.interface';
@@ -60,9 +70,12 @@ export class AuthenticationController {
   @Post('/refresh-tokens')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(new SanitizeMongooseModelInterceptor())
-  async refreshTokens(@Res({ passthrough: true }) response: Response, @Body() refreshTokenDto: RefreshTokenDto) {
-    const tokens = await this.authService.refreshTokens(refreshTokenDto);
+  async refreshTokens(@Res({ passthrough: true }) response: Response, @Req() request: Request) {
+    const refreshToken = request.cookies[REFRESH_TOKEN_COOKIE_KEY];
 
+    if (!refreshToken) throw new UnauthorizedException();
+
+    const tokens = await this.authService.refreshTokens(refreshToken);
     return this.setTokenInResponseCookies(response, tokens);
   }
 

@@ -7,7 +7,6 @@ import { User } from '../users/users.schema';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { TokenService } from './token/token.service';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { HashingService } from './hashing/hashing.service';
 import { TokenResponses } from './interfaces/token-response.interface';
 import { UserAlreadyExists } from './exceptions/user-already-exists.exception';
@@ -79,9 +78,8 @@ export class AuthenticationService {
     await this.tokenService.invalidateRefreshToken(userId);
   }
 
-  async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<TokenResponses> {
+  async refreshTokens(refreshToken: string): Promise<TokenResponses> {
     this.logger.log('Refresh Token process started.');
-    const { refreshToken } = refreshTokenDto;
     const { sub } = this.tokenService.extractTokenPayload(refreshToken);
 
     const user = await this.userModel.findById(sub);
