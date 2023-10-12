@@ -32,6 +32,40 @@ Welcome to the React + NestJS Authentication project! This is a comprehensive ex
 
 - **Beautiful UI**: An aesthetically pleasing user interface to enhance the user experience including dark mode support.
 
+## Strategy
+
+```
++---------------------+   +-------------------------+   +-----------------------+
+|     User            |   |  Authentication Server  |   |    Resource Server    |
+|                     |   |                         |   |                       |
++---------------------+   +-------------------------+   +-----------------------+
+|                         |                            |                   		 |
+|                         |                            |                   		 |
+|---(1) Sign In---------> |                            |                   		 |
+|                         |                            |                    	 |
+|                         |                            |                    	 |
+|                         |<--(2) Access Token         |                    	 |
+|                         |<--(3) Refresh Token        |                    	 |
+|<--(4) Access Token      |                            |                    	 |
+|                         |                            |                     	 |
+|                         |                            |                    	 |
+|                         |                            |<--(5) Access Resource   |
+|                         |                            |                    	 |
+|                         |                            |                    	 |
+|                         |<--(6) Access Denied        |                   	 	 |
+|                         |                            |                     	 |
+|                         |                            |                      	 |
+|                         |                            |                    	 |
+|                         |<--(7) Refresh Token        |                    	 |
+|                         |                            |                     	 |
+|                         |                            |                    	 |
+|<--(8) New Access Token  |                            |                    	 |
+|                         |                            |                    	 |
+|                         |                            |                    	 |
+|                         |                            |<--(9) Access Resource   |
+
+```
+
 ## 🏢 Server Setup
 
 **Set up a MongoDB database for the project. You can follow these steps to set up MongoDB:**
