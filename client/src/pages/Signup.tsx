@@ -1,20 +1,23 @@
-import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
+import { authService } from "../services/authentication";
 import ErrorDialog from "../components/ErrorDialog";
 
 export default function SignUp() {
+  const history = useHistory();
+
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const history = useHistory();
 
   const signUpUser = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     try {
-      //   Call API At This point!
+      await authService.signUp({ email, name, password });
       history.push("/home");
     } catch (err) {
     } finally {
@@ -25,6 +28,11 @@ export default function SignUp() {
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setEmail(value);
+  };
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setName(value);
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +59,17 @@ export default function SignUp() {
                 required
                 value={email}
                 onChange={handleEmailChange}
+              />
+            </Box>
+            <Box mt="5">
+              <Input
+                name="name"
+                type="name"
+                placeholder="User Name"
+                variant="filled"
+                required
+                value={name}
+                onChange={handleNameChange}
               />
             </Box>
             <Box mt="5">

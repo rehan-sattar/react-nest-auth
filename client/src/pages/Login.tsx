@@ -3,6 +3,7 @@ import { Link as RouterLink, useHistory } from "react-router-dom";
 import { Box, Button, Flex, Heading, Input, Link } from "@chakra-ui/react";
 
 import ErrorDialog from "../components/ErrorDialog";
+import { authService } from "../services/authentication";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -25,8 +26,8 @@ export default function SignIn() {
     e.preventDefault();
     setLoading(true);
     try {
-      //   Call The API At This Point!
-      //   history.push("/home");
+      await authService.signIn({ email, password });
+      history.push("/home");
     } catch (err) {
     } finally {
       setLoading(false);
